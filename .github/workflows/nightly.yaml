@@ -1,0 +1,27 @@
+name: Nightly
+on:
+  push:
+    branches:
+      - ci
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+      - run: |
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev make python3-pip python3-setuptools patchelf desktop-file-utils libgdk-pixbuf2.0-dev fakeroot strace fuse
+
+      - run: |
+          flutter pub get
+          flutter build apk
+          mv build/app/outputs/apk/release/app-release.apk build/scanr-android-all-arch.apk
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Scanr-Android-Bundle
+          path: |
+            build/scanr-android-all-arch.apk
